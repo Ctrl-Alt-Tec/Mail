@@ -148,6 +148,7 @@
                 this.url = url
                 this.preview = document.createElement('object');
                 this.preview.data = url;
+                //this.event = 'click'
             }
             selectFrom(all){
                 if(!this.dom.classList.contains("active")){
@@ -166,10 +167,10 @@
                 let scope = this
                 this.dom = document.createElement('input')
                 this.dom.classList.add('template')
-                this.dom.type="file"
-
-                this.dom.addEventListener("change", function(e){
-                    console.log(scope.dom.value)
+                //this.dom.type="file"
+                //this.event = 'input'
+                this.dom.addEventListener("input", function(e){
+                    this.url = scope.dom.value
                 })
             }
         }
@@ -218,14 +219,18 @@
 
             for(let i of templates_ex){
 
-                i.dom.addEventListener('click', function(){
+
+                function _changePreview(){
                     i.selectFrom(templates_ex)
                     document.querySelector('.preview').innerHTML = `Cargando vista previa...`
                     fetch(i.url).then(d=>d.text()).then(d=>{
                         document.querySelector('.preview').innerHTML = ``
                         document.querySelector('.preview').append(i.preview)
                     })
-                })
+                }
+
+                i.dom.addEventListener('click', _changePreview)
+                i.dom.addEventListener('input', _changePreview)
 
 
                 document.querySelector(".templates").append(i.dom)
