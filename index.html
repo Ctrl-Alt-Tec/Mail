@@ -158,6 +158,10 @@
                     this.dom.classList.add("active")
                 }
             }
+            updateURL(url){
+                this.url = url
+                this.preview.data = url
+            }
         }
 
 
@@ -169,9 +173,7 @@
                 this.dom.classList.add('template')
                 //this.dom.type="file"
                 //this.event = 'input'
-                this.dom.addEventListener("input", function(e){
-                    this.url = scope.dom.value
-                })
+
             }
         }
 
@@ -230,7 +232,10 @@
                 }
 
                 i.dom.addEventListener('click', _changePreview)
-                i.dom.addEventListener('change', _changePreview)
+                i.dom.addEventListener('change', function(e){
+                    i.updateURL(e.target.value);
+                    _changePreview()
+                })
 
 
                 document.querySelector(".templates").append(i.dom)
