@@ -67,6 +67,7 @@
             font-weight: 600;
             cursor: pointer;
             opacity: 0.5;
+            -webkit-appearance: none !important;
         }
 
         .templates .template.active{
@@ -90,7 +91,7 @@
             text-align: left;
         }
 
-        @media only screen and (max-width: 800px) {
+        @media only screen and (max-width: 900px) {
             .recipients{
                 max-height: 100%;
             }
@@ -158,6 +159,21 @@
             }
         }
 
+
+        class TemplateTagInput extends TemplateTag{
+            constructor(tag, url){
+                super(tag, url)
+                let scope = this
+                this.dom = document.createElement('input')
+                this.dom.classList.add('template')
+                this.dom.type="file"
+
+                this.dom.addEventListener("change", function(e){
+                    console.log(scope.dom.value)
+                })
+            }
+        }
+
         async function getMails(){
             return new Promise((resolve, reject)=>{
                 fetch('https://ctrl-alt-tec-members.herokuapp.com/members', {
@@ -196,6 +212,8 @@
                 new TemplateTag("Whatsapp Invite", "https://ctrl-alt-tec.github.io/Templates/whatsapp.html"),
                 new TemplateTag("Boletín semanal", "https://ctrl-alt-tec.github.io/Templates/whatsapp.html"),
                 new TemplateTag("Anuncio general", "https://ctrl-alt-tec.github.io/Templates/whatsapp.html"),
+
+                new TemplateTagInput("aaaaaaaaa", "https://example.com")
             ]
 
             for(let i of templates_ex){
