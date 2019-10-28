@@ -18,6 +18,18 @@
             height: auto;
         }
 
+        .title{
+            background: whitesmoke;
+        }
+
+        .title .title_input{
+            border: none;
+            margin: 16px;
+            background: transparent;
+            font-size: 3em;
+            font-weight: 600
+        }
+
         .recipients{
             padding: 8px;
             display: flex;
@@ -91,6 +103,16 @@
             text-align: left;
         }
 
+        .fab{
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            height: 80px;
+            width: 80px;
+            background: black;
+            border-radius: 40px;
+        }
+
         @media only screen and (max-width: 900px) {
             .recipients{
                 max-height: 100%;
@@ -101,6 +123,9 @@
 </head>
 <body>
     <div class="altUI_AppView_Content app">
+        <div class="title">
+            <input type="text" class="title_input" placeholder="Asunto"/>
+        </div>
         <div class="recipients">
             <h2 class="recipients_heading">DESTINATARIOS</h2>
         </div>
@@ -113,11 +138,16 @@
         </div>
 
     </div>
+
+    <div class="fab"></div>
+
     <script>
         let UIAppBar = new UI.AppBar('https://ctrl-alt-tec.github.io/Website/img/LOGO-INLINE.png', '')
         UIAppBar.setTitle('Mailer')
         document.body.prepend(UIAppBar.dom)
 
+        let UIModal = new UI.Modal();
+        document.body.prepend(UIModal.dom)
 
         class MailTag{
             constructor(mail, name){
@@ -194,13 +224,19 @@
 
         async function getTemplates(){
             return new Promise((resolve, reject) => {
-                resolve("Hello")
+                fetch('/templates').then((data)=>data.json()).then((data)=>{
+                    resolve(
+                        data.templates.map( l => new TemplateTag(l.name, l.url))
+                    )
+                })
             })
         }
 
+        let selectedMails = []
+        let selectedTemplates = []
+
         getMails().then((mails)=>{
             //let selectedMails = mails.map(i=>i.mail)
-            let selectedMails = []
             for(let i of mails){
                 i.dom.addEventListener('click', function(){
                     i.toggleFromList(selectedMails)
@@ -211,19 +247,22 @@
         })
 
         getTemplates().then((templates => {
-            let templates_ex = [
+            /*let templates_ex = [
                 new TemplateTag("Whatsapp Invite", "https://ctrl-alt-tec.github.io/Templates/whatsapp.html"),
                 new TemplateTag("Boletín semanal", "https://ctrl-alt-tec.github.io/Templates/whatsapp.html"),
                 new TemplateTag("Anuncio general", "https://ctrl-alt-tec.github.io/Templates/whatsapp.html"),
 
                 new TemplateTagInput("aaaaaaaaa", "https://example.com")
-            ]
+            ]*/
 
-            for(let i of templates_ex){
-
+            for(let i of templates){
 
                 function _changePreview(){
-                    i.selectFrom(templates_ex)
+                    selectedTemplates = i.url
+                    i.selectFrom(templates)                    
+                    /*UIModal.show(function(){
+                        return "Herllo"
+                    }(), 'Hi')*/
                     document.querySelector('.preview').innerHTML = `Cargando vista previa...`
                     fetch(i.url).then(d=>d.text()).then(d=>{
                         document.querySelector('.preview').innerHTML = ``
@@ -243,8 +282,22 @@
 
         }))
         
+        document.querySelector(".fab").addEventListener("click", function(){
+            console.log(selectedMails);
+            console.log(selectedTemplates);
 
-
+            fetch('/send', {
+                method: 'POST',
+                body: JSON.stringify({
+                    url: selectedTemplates,
+                    mails: selectedMails,
+                    subject: document.querySelector('.title_input').value
+                }),
+                headers:{
+                    'Content-Type': 'application/json'
+                }
+            })
+        })
     </script>
 </body>
 </html>
